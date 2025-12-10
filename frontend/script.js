@@ -22,8 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsTableBody = document.querySelector('#results-table tbody');
     const shareLink = document.getElementById('share-link');
     const newTestBtn = document.getElementById('new-test-btn');
+    const editConfigBtn = document.getElementById('edit-config-btn');
     
     let chartInstance = null;
+    let lastUsedTool = null;
 
     // Check for existing experiment ID in URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -105,6 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const newUrl = `${window.location.pathname}?id=${data.experimentId}`;
             window.history.pushState({ path: newUrl }, '', newUrl);
             
+            // Save last used tool for future re-runs
+            lastUsedTool = tool;
+            
         } catch (err) {
             showError(runError, err.message);
         } finally {
@@ -118,8 +123,23 @@ document.addEventListener('DOMContentLoaded', () => {
         setupSection.classList.remove('hidden');
         // Clear ID from URL
         window.history.pushState({}, '', window.location.pathname);
-        // Reset form? maybe keep server url
+        // Reset form inputs to defaults
+        toolSelect.innerHTML = '';
+        toolArgs.value = '{}';
+        iterationsInput.value = '10';
+        lastUsedTool = null;
     });
+
+    if (editConfigBtn) {
+        editConfigBtn.addEventListener('click', () => {
+            resultsSection.classList.add('hidden');
+            setupSection.classList.remove('hidden');
+            // Trigger connection to fetch tools and show config
+            // We can just simulate click or call the logic.
+            // Simulating click is easier as it handles UI state
+            connectBtn.click();
+        });
+    }
 
     // Functions
     function populateTools(tools) {
@@ -137,6 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
             option.text = tool.name;
             toolSelect.add(option);
         });
+
+        // Pre-select tool if available
+        if (lastUsedTool) {
+            toolSelect.value = lastUsedTool;
+        }
     }
     
     function showError(element, msg) {
@@ -157,6 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Pre-fill setup in case user wants to run again
             serverUrlInput.value = data.experiment.serverUrl;
+            toolArgs.value = data.experiment.arguments || '{}';
+            iterationsInput.value = data.experiment.iterations || 10;
+            lastUsedTool = data.experiment.toolName;
             
             renderResults(data.results, id);
             setupSection.classList.add('hidden');
@@ -247,10 +275,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function truncate(str, n) {
+        if (!str) return "";
         return (str.length > n) ? str.substr(0, n-1) + '...' : str;
     }
     
     function escapeHtml(text) {
+        if (!text) return "";
         return text
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -259,4 +289,3 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/'/g, "&#039;");
     }
 });
-

@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+experiments.db
+*.bundle
+.env
+
