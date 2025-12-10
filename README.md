@@ -46,6 +46,23 @@ Included is a simple mock MCP server for testing purposes.
 
 2. In the Mini MCP Server Tester, enter `http://localhost:8000/mcp` as the server URL.
 
+### Example Tool Inputs
+
+When running experiments with the mock server, you can use the following JSON inputs for the available tools:
+
+- **echo**:
+  ```json
+  { "message": "Hello MCP!" }
+  ```
+- **random_number**:
+  ```json
+  { "min": 10, "max": 50 }
+  ```
+- **error_tool**:
+  ```json
+  {}
+  ```
+
 ## Design Decisions
 
 - **Architecture**: A simple Flask backend with a vanilla JS/HTML/CSS frontend. This ensures the "quickest route" to a working MVP without build steps (like Webpack/Vite) or heavy frontend frameworks (React/Vue).
